@@ -16,12 +16,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   async function getSongs() {
-    const { assets } = await MediaLibrary.getAssetsAsync({ mediaType: 'audio', first: 20 });
+    const { assets } = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' });
     const excludeDir = ['/Ringtones', '/Notifications', '/Alarms', '/System', ".flac"]
     const filteredAssets = assets.filter(file => {
       return !excludeDir.some(excludeDir => file.uri.includes(excludeDir));
     })
-    setTracks(filteredAssets)
+    // setTracks(filteredAssets)
+    setTracks(filteredAssets.sort((a, b) => b.modificationTime - a.modificationTime))
     setLoading(false)
     return filteredAssets
   }
