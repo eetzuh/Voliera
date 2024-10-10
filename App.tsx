@@ -16,14 +16,29 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   async function getSongs() {
-    const { assets } = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' });
+    let allAssets : MediaLibrary.Asset[] = [];
+    let hasMore = true;
+    let after : undefined | MediaLibrary.AssetRef = undefined;
+
     const excludeDir = ['/Ringtones', '/Notifications', '/Alarms', '/System', ".flac"]
-    const filteredAssets = assets.filter(file => {
+    while (hasMore) {
+      const { assets, endCursor, hasNextPage } = await MediaLibrary.getAssetsAsync({
+        mediaType: 'audio',
+        first: 60,
+        after: after,
+      });
+  
+      allAssets = [...allAssets, ...assets];
+      after = endCursor;
+      hasMore = hasNextPage;
+    }
+    const filteredAssets = allAssets.filter(file => {
       return !excludeDir.some(excludeDir => file.uri.includes(excludeDir));
     })
-    // setTracks(filteredAssets)
+
     setTracks(filteredAssets.sort((a, b) => b.modificationTime - a.modificationTime))
     setLoading(false)
+    
     return filteredAssets
   }
 
@@ -59,14 +74,12 @@ export default function App() {
     <View style={{ flex: 1, backgroundColor: themeStyle.bgColorPrimay }}>
       <SafeAreaView style={{ flex: 1 }}>
         <NavigationContainer>
-          {tracks &&
             <TrackContext.Provider value={{ tracks, loading }}>
               <ThemeContext.Provider value={themeStyle}>
                 <StatusBar style="auto" />
                 <BottomTabs />
               </ThemeContext.Provider>
             </TrackContext.Provider>
-          }
         </NavigationContainer>
       </SafeAreaView>
     </View>
