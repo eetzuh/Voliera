@@ -62,8 +62,9 @@ const Track = ({ uri, duration, date, id }: { uri: string, duration: number, dat
 
   async function getSongInfo(uri: string) {
     const readFileInfo = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-    const ID3Tags = parse(toByteArray(readFileInfo))
+    const ID3Tags = parse(toByteArray(readFileInfo))    
     if (ID3Tags) {
+      console.log(ID3Tags.version);
       setSongInfo({
         ...songInfo,
         artist: ID3Tags.artist,
@@ -77,6 +78,9 @@ const Track = ({ uri, duration, date, id }: { uri: string, duration: number, dat
       if (ID3Tags.image?.data) {
         setArtwork(createBase64Artwork(ID3Tags.image.data));
       }
+    }else{
+      console.log("NEMA");
+      
     }
   }
 
