@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomTabs from './components/BottomTabs';
 import { useEffect, useState } from 'react';
 import * as MediaLibrary from "expo-media-library"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createDB } from './db/database';
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -14,11 +16,12 @@ export default function App() {
 
   const [tracks, setTracks] = useState<MediaLibrary.Asset[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [savedMetadata, setSavedMetadata] = useState<boolean>(false)
 
   async function getSongs() {
-    let allAssets : MediaLibrary.Asset[] = [];
+    let allAssets: MediaLibrary.Asset[] = [];
     let hasMore = true;
-    let after : undefined | MediaLibrary.AssetRef = undefined;
+    let after: undefined | MediaLibrary.AssetRef = undefined;
 
     const excludeDir = ['/Ringtones', '/Notifications', '/Alarms', '/System', ".flac"]
     while (hasMore) {
@@ -27,7 +30,7 @@ export default function App() {
         first: 60,
         after: after,
       });
-  
+
       allAssets = [...allAssets, ...assets];
       after = endCursor;
       hasMore = hasNextPage;
@@ -38,7 +41,7 @@ export default function App() {
 
     setTracks(filteredAssets.sort((a, b) => b.modificationTime - a.modificationTime))
     setLoading(false)
-    
+
     return filteredAssets
   }
 
@@ -66,20 +69,39 @@ export default function App() {
       }
     }
   }
+
+  async function hasSavedMetadata() {
+    try {
+      const saved = await AsyncStorage.getItem("metadata_saved")
+      if (saved) {
+        console.log(saved);
+        setSavedMetadata(true)
+        return
+      }
+      await createDB();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
-    requestStorageAccessPermission()
+    const initialize = async () => {
+      await requestStorageAccessPermission()
+      await hasSavedMetadata()
+    }
+    initialize()
   }, [])
 
   return (
     <View style={{ flex: 1, backgroundColor: themeStyle.bgColorPrimay }}>
       <SafeAreaView style={{ flex: 1 }}>
         <NavigationContainer>
-            <TrackContext.Provider value={{ tracks, loading }}>
-              <ThemeContext.Provider value={themeStyle}>
-                <StatusBar style="auto" />
-                <BottomTabs />
-              </ThemeContext.Provider>
-            </TrackContext.Provider>
+          <TrackContext.Provider value={{ tracks, loading }}>
+            <ThemeContext.Provider value={themeStyle}>
+              <StatusBar style="auto" />
+              <BottomTabs />
+            </ThemeContext.Provider>
+          </TrackContext.Provider>
         </NavigationContainer>
       </SafeAreaView>
     </View>
