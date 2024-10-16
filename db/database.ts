@@ -5,7 +5,6 @@ interface ID3Structure {
   album: string | undefined;
   artist: string | undefined;
   title: string | undefined;
-  genre: string | undefined;
   year: string | undefined;
   track: number | undefined;
 }
@@ -16,38 +15,23 @@ export const createDB = async () => {
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS tracks (
             id INTEGER PRIMARY KEY NOT NULL, 
-            album TEXT, 
-            artist TEXT,
+            FOREIGN KEY (album_id) REFERENCES albums(id),
+            FOREIGN KEY (artist_id) REFERENCES artists(id)
             title TEXT,
-            genre TEXT,
             year INTEGER,
             track TEXT
             );
-            CREATE TABLE IF NOT EXISTS albums (
+            CREATE TABLE IF NOT EXISTS artists (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
             );
-            CREATE TABLE IF NOT EXISTS genres (
+            CREATE TABLE IF NOT EXISTS albums (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
             );
             CREATE TABLE IF NOT EXISTS playlists (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
-            );
-            CREATE TABLE IF NOT EXISTS tracks_albums(
-            track_id INTEGER,
-            album_id INTEGER,
-            FOREIGN KEY (track_id) REFERENCES tracks (id),
-            FOREIGN KEY (album_id) REFERENCES albums (id),
-            PRIMARY KEY (track_id, album_id)
-            );
-            CREATE TABLE IF NOT EXISTS tracks_genres (
-            track_id INTEGER,
-            genre_id INTEGER,
-            FOREIGN KEY (track_id) REFERENCES tracks (id),
-            FOREIGN KEY (genre_id) REFERENCES genres (id),
-            PRIMARY KEY (track_id, genre_id)
             );
             CREATE TABLE IF NOT EXISTS tracks_playlists (
             track_id INTEGER,
@@ -62,15 +46,23 @@ export const createDB = async () => {
   }
 };
 
-export const insertMedatada = async (metadata : ID3Structure) =>{
+export const getTrackMetadata = async (songID : number) =>{
   try {
-    await db.runAsync(`INSERT INTO tracks (id, album, artist, title, genre, year, track) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+    const metadata = await db.getAllAsync(`SELECT * from tracks WHERE id=?`, [songID]);
+    return metadata
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const insertTrackMedatada = async (metadata : ID3Structure) =>{
+  try {
+    await db.runAsync(`INSERT INTO tracks (id, album_id, artist_id, title, year, track) VALUES (?, ?, ?, ?, ?, ?);`,
       [
         metadata.trackID,
         metadata.album || null,
         metadata.artist || null,
         metadata.title || null,
-        metadata.genre || null,
         metadata.year || null,
         metadata.track || null
       ]

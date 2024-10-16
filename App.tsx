@@ -7,9 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomTabs from './components/BottomTabs';
 import { useEffect, useState } from 'react';
 import * as MediaLibrary from "expo-media-library"
-import * as SQLite from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { db, createDB } from './db/database';
+import { createDB } from './db/database';
 
 export default function App() {
   const colorScheme = useColorScheme();
