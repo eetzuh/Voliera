@@ -1,13 +1,15 @@
 export const dark={
-    bgColorPrimay:"#404A4A",
-    colorSecondary:"#222726",
+    bgColorPrimay:"#363835",
+    colorSecondary:"#161715",
     colorLight:"#767381",
-    textColorPrimary:"white"
+    textColorPrimary:"white",
+    textColorSecondary:"#ffffff60"
 }
 
 export const light={
     bgColorPrimay:"#D5CADA",
     colorSecondary:"#A69AC7",
     colorLight:"#EADDFF",
-    textColorPrimary:"black"
+    textColorPrimary:"black",
+    textColorSecondary:"#00000060"
 }

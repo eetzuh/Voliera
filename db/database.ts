@@ -13,14 +13,6 @@ export const db = SQLite.openDatabaseSync("metadata");
 export const createDB = async () => {
   try {
     await db.execAsync(`
-            CREATE TABLE IF NOT EXISTS tracks (
-            id INTEGER PRIMARY KEY NOT NULL, 
-            FOREIGN KEY (album_id) REFERENCES albums(id),
-            FOREIGN KEY (artist_id) REFERENCES artists(id)
-            title TEXT,
-            year INTEGER,
-            track TEXT
-            );
             CREATE TABLE IF NOT EXISTS artists (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
@@ -32,6 +24,16 @@ export const createDB = async () => {
             CREATE TABLE IF NOT EXISTS playlists (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
+            );
+            CREATE TABLE IF NOT EXISTS tracks (
+            id INTEGER PRIMARY KEY NOT NULL, 
+            album_id INTEGER,
+            artist_id INTEGER,
+            title TEXT,
+            year INTEGER,
+            track TEXT,
+            FOREIGN KEY (album_id) REFERENCES albums (id),
+            FOREIGN KEY (artist_id) REFERENCES artists (id)
             );
             CREATE TABLE IF NOT EXISTS tracks_playlists (
             track_id INTEGER,

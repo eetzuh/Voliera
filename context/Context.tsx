@@ -1,16 +1,25 @@
 import { createContext, useContext } from 'react';
 import { light, dark } from '../styles/Colors';
-import * as MediaLibrary from "expo-media-library"
+import { TracksContextValue, ThemeContextValue, AndroidArtworkColors } from '../interfaces/Interfaces';
+import { TagStructure } from '../interfaces/Interfaces';
+import { Dispatch, SetStateAction } from 'react';
 
-export const ThemeContext = createContext(dark || light);
+const defaultSetArtworkColors: Dispatch<SetStateAction<AndroidArtworkColors | null>> = () => { }
+export const ThemeContext = createContext<ThemeContextValue>({
+  theme: dark || light,
+  artworkColors: null,
+  setArtworkColors: defaultSetArtworkColors
+});
 
-interface TracksContextValue {
-    tracks: MediaLibrary.Asset[] | undefined;
-    loading: boolean
-  }
+export const useTheme = () => useContext(ThemeContext);
+
+const defaultSetPlaying: Dispatch<SetStateAction<false | TagStructure>> = () => { };
 export const TrackContext = createContext<TracksContextValue>({
-    tracks: undefined,
-    loading:true
-  })
+  tracks: undefined,
+  loading: true,
+  playing: false,
+  setPlaying: defaultSetPlaying
+})
 
 export const useTracks = () => useContext(TrackContext);
+

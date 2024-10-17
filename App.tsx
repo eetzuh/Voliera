@@ -9,13 +9,16 @@ import { useEffect, useState } from 'react';
 import * as MediaLibrary from "expo-media-library"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDB } from './db/database';
+import { TagStructure, AndroidArtworkColors } from './interfaces/Interfaces';
 
 export default function App() {
   const colorScheme = useColorScheme();
-  const themeStyle = colorScheme === "dark" ? dark : light;
+  const theme = colorScheme === "dark" ? dark : light;
 
   const [tracks, setTracks] = useState<MediaLibrary.Asset[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [playing, setPlaying] = useState<TagStructure | false>(false);
+  const [artworkColors, setArtworkColors] = useState<AndroidArtworkColors | null>(null);
   const [savedMetadata, setSavedMetadata] = useState<boolean>(false)
 
   async function getSongs() {
@@ -23,7 +26,7 @@ export default function App() {
     let hasMore = true;
     let after: undefined | MediaLibrary.AssetRef = undefined;
 
-    const excludeDir = ['/Ringtones', '/Notifications', '/Alarms', '/System', ".flac"]
+    const excludeDir = ['/Ringtones', '/Notifications', '/Alarms', '/System']
     while (hasMore) {
       const { assets, endCursor, hasNextPage } = await MediaLibrary.getAssetsAsync({
         mediaType: 'audio',
@@ -93,11 +96,11 @@ export default function App() {
   }, [])
 
   return (
-    <View style={{ flex: 1, backgroundColor: themeStyle.bgColorPrimay }}>
+    <View style={{ flex: 1, backgroundColor: theme.bgColorPrimay }}>
       <SafeAreaView style={{ flex: 1 }}>
         <NavigationContainer>
-          <TrackContext.Provider value={{ tracks, loading }}>
-            <ThemeContext.Provider value={themeStyle}>
+          <TrackContext.Provider value={{ tracks, loading, playing, setPlaying }}>
+            <ThemeContext.Provider value={{theme, artworkColors, setArtworkColors}}>
               <StatusBar style="auto" />
               <BottomTabs />
             </ThemeContext.Provider>

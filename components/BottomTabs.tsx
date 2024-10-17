@@ -1,12 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SongsScreen from "./screens/SongsScreen";
-import { ThemeContext } from "../context/Context";
-import { useContext} from "react";
+import { useTheme } from "../context/Context";
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
-    const theme = useContext(ThemeContext)
+    const {theme, artworkColors} = useTheme();
     return (
         <Tab.Navigator
             screenOptions={
@@ -15,6 +14,7 @@ export default function BottomTabs() {
                     headerShown: false,
                     tabBarStyle: {
                         position: "absolute",
+                        height: 58,
                         backgroundColor: theme.colorSecondary,
                         borderTopLeftRadius: 16, borderTopRightRadius: 16,
                         borderBlockColor: "transparent",
