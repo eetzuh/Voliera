@@ -8,9 +8,6 @@ export interface TagStructure {
   albumTrack: number | undefined;
   title: string | undefined;
   year: number | undefined;
-  image: string | undefined;
-  duration: number;
-  date: number;
 }
 
 export interface AndroidArtworkColors {

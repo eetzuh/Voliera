@@ -18,7 +18,17 @@ export default function App() {
   const [tracks, setTracks] = useState<MediaLibrary.Asset[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState<TagStructure | false>(false);
-  const [artworkColors, setArtworkColors] = useState<AndroidArtworkColors | null>(null);
+  const [artworkColors, setArtworkColors] = useState<AndroidArtworkColors | null>({
+    dominant: "#000000",
+    average: "#000000",
+    vibrant: "#000000",
+    darkVibrant: "#000000",
+    lightVibrant: "#000000",
+    darkMuted: "#000000",
+    lightMuted: "#000000",
+    muted: "#000000",
+    platform: "android"
+  });
   const [savedMetadata, setSavedMetadata] = useState<boolean>(false)
 
   async function getSongs() {
@@ -89,8 +99,8 @@ export default function App() {
 
   useEffect(() => {
     const initialize = async () => {
-      await requestStorageAccessPermission()
       await hasSavedMetadata()
+      await requestStorageAccessPermission()
     }
     initialize()
   }, [])
@@ -100,7 +110,7 @@ export default function App() {
       <SafeAreaView style={{ flex: 1 }}>
         <NavigationContainer>
           <TrackContext.Provider value={{ tracks, loading, playing, setPlaying }}>
-            <ThemeContext.Provider value={{theme, artworkColors, setArtworkColors}}>
+            <ThemeContext.Provider value={{ theme, artworkColors, setArtworkColors }}>
               <StatusBar style="auto" />
               <BottomTabs />
             </ThemeContext.Provider>
