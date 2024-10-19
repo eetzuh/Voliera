@@ -21,18 +21,21 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
 
 
   const { theme, artworkColors, setArtworkColors } = useTheme();
-  const { playing, setPlaying } = useTracks();
+  const { playing, setPlaying, setArtwork64 } = useTracks();
   const [artwork, setArtwork] = useState<string | undefined>();
   const [colors, setColors] = useState<AndroidArtworkColors | null>(artworkColors);
 
-  async function getArtwork(uri: string, artwork: string | false) {
+
+  const getArtwork = async (uri: string | undefined, artwork: string | false) => {
     let base64: string | false = false;
     if (artwork) {
       base64 = artwork;
     } else {
-      const data = await getAudioMetadata(uri, ["artwork"])
-      if (data.metadata.artwork) {
-        base64 = data.metadata.artwork;
+      if(uri!== undefined){
+        const data = await getAudioMetadata(uri, ["artwork"])
+        if (data.metadata.artwork) {
+          base64 = data.metadata.artwork;
+        }
       }
     }
     if (base64) {
@@ -119,13 +122,13 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
 
 
   return (
-    <Pressable onPress={() => { setPlaying(songInfo); setArtworkColors(colors) }}
+    <Pressable onPress={() => { setPlaying(songInfo); setArtworkColors(colors); setArtwork64(artwork) }}
       style={[{ width: "100%", height: 75, alignItems: 'center', flexDirection: 'row', gap: 20, paddingHorizontal: 22 },
       (playing !== false && playing.id == songInfo.id) && { backgroundColor: colors?.darkVibrant }]}>
 
       <Image source={artwork !== undefined ? { uri: `data:image/jpeg;base64,${artwork}` } : require('../assets/artworkPlaceholder.jpg')}
         style={{ width: 60, height: 60, borderWidth: 2, borderRadius: 10 }} />
-      <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 500 }}>{songInfo.title}</Text>
+      <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 500, fontSize:15 }}>{songInfo.title}</Text>
       <Pressable>
         <Text style={{ color: theme.textColorPrimary, fontWeight: 800 }}>. . .</Text>
       </Pressable>

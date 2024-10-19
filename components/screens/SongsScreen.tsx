@@ -5,6 +5,7 @@ import { useTracks, useTheme } from '../../context/Context'
 import Track from '../Track';
 import { Asset } from 'expo-media-library';
 import { FlashList } from '@shopify/flash-list';
+import Header from '../Header';
 
 const SongsScreen = () => {
     const { theme } = useTheme();
@@ -13,7 +14,7 @@ const SongsScreen = () => {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgColorPrimay }]}>
-            <View style={{ height: 50, width: "100%" }}></View>
+            <Header/>
             <View style={{ borderBottomWidth: 1, borderBottomColor: theme.textColorPrimary, opacity: 0.1 }}></View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10, paddingHorizontal: 22 }}>
                 <Text style={{ color: theme.textColorSecondary }}>Date added</Text>

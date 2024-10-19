@@ -1,4 +1,4 @@
-import { PermissionsAndroid, useColorScheme, View } from 'react-native';
+import { PermissionsAndroid, useColorScheme, View, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { light, dark } from './styles/Colors';
 import { NavigationContainer } from '@react-navigation/native';
@@ -10,6 +10,8 @@ import * as MediaLibrary from "expo-media-library"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDB } from './db/database';
 import { TagStructure, AndroidArtworkColors } from './interfaces/Interfaces';
+import 'react-native-gesture-handler';
+import DrawerNav from './components/DrawerNav';
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -18,6 +20,7 @@ export default function App() {
   const [tracks, setTracks] = useState<MediaLibrary.Asset[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState<TagStructure | false>(false);
+  const [artwork64, setArtwork64] = useState<string | undefined>(undefined)
   const [artworkColors, setArtworkColors] = useState<AndroidArtworkColors | null>({
     dominant: "#000000",
     average: "#000000",
@@ -105,17 +108,25 @@ export default function App() {
     initialize()
   }, [])
 
+  const renderDrawer= () =>{
+    return(
+        <View>
+            <Text>ASDF</Text>
+        </View>
+    )
+}
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bgColorPrimay }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <NavigationContainer>
-          <TrackContext.Provider value={{ tracks, loading, playing, setPlaying }}>
-            <ThemeContext.Provider value={{ theme, artworkColors, setArtworkColors }}>
-              <StatusBar style="auto" />
-              <BottomTabs />
-            </ThemeContext.Provider>
-          </TrackContext.Provider>
-        </NavigationContainer>
+          <NavigationContainer>
+            <TrackContext.Provider value={{ tracks, loading, playing, setPlaying, artwork64, setArtwork64 }}>
+              <ThemeContext.Provider value={{ theme, artworkColors, setArtworkColors }}>
+                <StatusBar style="auto" />
+                <DrawerNav />
+              </ThemeContext.Provider>
+            </TrackContext.Provider>
+          </NavigationContainer>
       </SafeAreaView>
     </View>
   );
