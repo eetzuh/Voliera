@@ -14,11 +14,14 @@ export const ThemeContext = createContext<ThemeContextValue>({
 export const useTheme = () => useContext(ThemeContext);
 
 const defaultSetPlaying: Dispatch<SetStateAction<false | TagStructure>> = () => { };
+const defaultSetArtwork64: Dispatch<SetStateAction<string | undefined>> = () => { };
 export const TrackContext = createContext<TracksContextValue>({
   tracks: undefined,
   loading: true,
   playing: false,
-  setPlaying: defaultSetPlaying
+  setPlaying: defaultSetPlaying,
+  artwork64:undefined,
+  setArtwork64:defaultSetArtwork64
 })
 
 export const useTracks = () => useContext(TrackContext);
