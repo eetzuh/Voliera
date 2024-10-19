@@ -13,7 +13,7 @@ const Header = () => {
                 <Text>NAV</Text>
             </TouchableOpacity>
             <View style={{backgroundColor:theme.colorSecondary, flex:1, borderRadius:18, height:38, marginRight:5, justifyContent:'center',paddingHorizontal:20}}>
-                <TextInput style={{fontSize:16, color:theme.textColorSecondary}} placeholderTextColor={theme.textColorSecondary} placeholder='Search...'></TextInput>
+                <TextInput style={{fontSize:16, color:theme.textColorPrimary}} placeholderTextColor={theme.textColorSecondary} placeholder='Search...'></TextInput>
             </View>
         </View>
     )
