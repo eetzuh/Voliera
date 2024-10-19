@@ -27,6 +27,8 @@ export interface TracksContextValue {
   loading: boolean;
   playing: false | TagStructure;
   setPlaying: Dispatch<SetStateAction<false | TagStructure>>;
+  artwork64: string | undefined;
+  setArtwork64: Dispatch<SetStateAction<string | undefined>>;
 }
 
 export interface ThemeColors {
