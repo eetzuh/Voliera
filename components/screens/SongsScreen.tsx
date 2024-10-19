@@ -10,7 +10,6 @@ import Header from '../Header';
 const SongsScreen = () => {
     const { theme } = useTheme();
     const { tracks, playing } = useTracks();
-    console.log(tracks?.length);
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgColorPrimay }]}>

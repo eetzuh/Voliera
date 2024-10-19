@@ -10,6 +10,11 @@ export interface TagStructure {
   year: number | undefined;
 }
 
+export interface PlayingStructure extends TagStructure{
+  uri: string | null;
+  duration: number;
+}
+
 export interface AndroidArtworkColors {
   dominant: string
   average: string
@@ -25,10 +30,14 @@ export interface AndroidArtworkColors {
 export interface TracksContextValue {
   tracks: MediaLibrary.Asset[] | undefined;
   loading: boolean;
-  playing: false | TagStructure;
-  setPlaying: Dispatch<SetStateAction<false | TagStructure>>;
+  paused: boolean;
+  setPaused: Dispatch<SetStateAction<boolean>>;
+  playing: false | PlayingStructure;
+  setPlaying: Dispatch<SetStateAction<false | PlayingStructure>>;
   artwork64: string | undefined;
   setArtwork64: Dispatch<SetStateAction<string | undefined>>;
+  position: number;
+  setPosition:Dispatch<SetStateAction<number>>
 }
 
 export interface ThemeColors {

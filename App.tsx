@@ -4,14 +4,15 @@ import { light, dark } from './styles/Colors';
 import { NavigationContainer } from '@react-navigation/native';
 import { ThemeContext, TrackContext } from './context/Context';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomTabs from './components/BottomTabs';
 import { useEffect, useState } from 'react';
 import * as MediaLibrary from "expo-media-library"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDB } from './db/database';
-import { TagStructure, AndroidArtworkColors } from './interfaces/Interfaces';
+import { AndroidArtworkColors, PlayingStructure } from './interfaces/Interfaces';
 import 'react-native-gesture-handler';
 import DrawerNav from './components/DrawerNav';
+import PlayingWindow from './components/PlayingWindow';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -19,7 +20,9 @@ export default function App() {
 
   const [tracks, setTracks] = useState<MediaLibrary.Asset[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [playing, setPlaying] = useState<TagStructure | false>(false);
+  const [playing, setPlaying] = useState<PlayingStructure | false>(false);
+  const [paused, setPaused] = useState<boolean>(false);
+  const [position, setPosition] = useState<number>(0);
   const [artwork64, setArtwork64] = useState<string | undefined>(undefined)
   const [artworkColors, setArtworkColors] = useState<AndroidArtworkColors | null>({
     dominant: "#000000",
@@ -108,25 +111,20 @@ export default function App() {
     initialize()
   }, [])
 
-  const renderDrawer= () =>{
-    return(
-        <View>
-            <Text>ASDF</Text>
-        </View>
-    )
-}
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.bgColorPrimay }}>
       <SafeAreaView style={{ flex: 1 }}>
-          <NavigationContainer>
-            <TrackContext.Provider value={{ tracks, loading, playing, setPlaying, artwork64, setArtwork64 }}>
-              <ThemeContext.Provider value={{ theme, artworkColors, setArtworkColors }}>
+        <NavigationContainer>
+          <TrackContext.Provider value={{ tracks, loading, playing, setPlaying, artwork64, setArtwork64, paused, setPaused, position, setPosition }}>
+            <ThemeContext.Provider value={{ theme, artworkColors, setArtworkColors }}>
+              <GestureHandlerRootView>
                 <StatusBar style="auto" />
                 <DrawerNav />
-              </ThemeContext.Provider>
-            </TrackContext.Provider>
-          </NavigationContainer>
+                {playing && <PlayingWindow></PlayingWindow>}
+              </GestureHandlerRootView>
+            </ThemeContext.Provider>
+          </TrackContext.Provider>
+        </NavigationContainer>
       </SafeAreaView>
     </View>
   );

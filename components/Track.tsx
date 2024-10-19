@@ -1,12 +1,12 @@
 import { View, Text, Image, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import * as FileSystem from 'expo-file-system';
 import { getTrackMetadata, insertTrackMedatada } from '../db/database';
 import { getAudioMetadata } from '@missingcore/audio-metadata';
 import { useTheme, useTracks } from '../context/Context';
 import RNFS from "react-native-fs";
 import { getColors } from 'react-native-image-colors'
 import { TagStructure, AndroidArtworkColors } from '../interfaces/Interfaces';
+import { Play, Pause } from '../helpers/Helpers';
 
 const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: number, date: number, id: number }) => {
 
@@ -19,19 +19,17 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
     year: undefined,
   })
 
-
   const { theme, artworkColors, setArtworkColors } = useTheme();
-  const { playing, setPlaying, setArtwork64 } = useTracks();
+  const { playing, setPlaying, setArtwork64, paused, setPaused } = useTracks();
   const [artwork, setArtwork] = useState<string | undefined>();
   const [colors, setColors] = useState<AndroidArtworkColors | null>(artworkColors);
-
 
   const getArtwork = async (uri: string | undefined, artwork: string | false) => {
     let base64: string | false = false;
     if (artwork) {
       base64 = artwork;
     } else {
-      if(uri!== undefined){
+      if (uri !== undefined) {
         const data = await getAudioMetadata(uri, ["artwork"])
         if (data.metadata.artwork) {
           base64 = data.metadata.artwork;
@@ -119,20 +117,37 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
     }
   }, [songInfo]);
 
-
+  const operateTrack = async () => {
+    if(playing && playing.id == songInfo.id && !paused){
+      await Pause();
+      setPaused(true);
+      return;
+    }
+     await Play(uri);
+     setPaused(false);
+     setPlaying({ ...songInfo, uri: uri, duration: duration });
+     setArtworkColors(colors);
+     setArtwork64(artwork)
+  }
 
   return (
-    <Pressable onPress={() => { setPlaying(songInfo); setArtworkColors(colors); setArtwork64(artwork) }}
+    <Pressable onPress={async()=> await operateTrack()}
       style={[{ width: "100%", height: 75, alignItems: 'center', flexDirection: 'row', gap: 20, paddingHorizontal: 22 },
       (playing !== false && playing.id == songInfo.id) && { backgroundColor: colors?.darkVibrant }]}>
-
       <Image source={artwork !== undefined ? { uri: `data:image/jpeg;base64,${artwork}` } : require('../assets/artworkPlaceholder.jpg')}
         style={{ width: 60, height: 60, borderWidth: 2, borderRadius: 10 }} />
-      <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 500, fontSize:15 }}>{songInfo.title}</Text>
-      <Pressable>
-        <Text style={{ color: theme.textColorPrimary, fontWeight: 800 }}>. . .</Text>
-      </Pressable>
-
+      <View style={{ flex: 1, flexDirection: 'row', height: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ gap: 4, flex: 1, paddingRight: 20 }}>
+          <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 500, fontSize: 15, maxHeight: 20 }}>{songInfo.title}</Text>
+          <View style={{ flex: 1, maxHeight: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }} >{songInfo.artist ? songInfo.artist : "Unknown Artist"}</Text>
+            <Text style={{ color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }}>{Math.floor(duration / 60) < 10 && 0}{Math.floor(duration / 60)}:{Math.floor(duration % 60)}</Text>
+          </View>
+        </View>
+        <Pressable>
+          <Text style={{ color: theme.textColorPrimary, fontWeight: 800 }}>. . .</Text>
+        </Pressable>
+      </View>
     </Pressable>
   )
 });
