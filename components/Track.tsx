@@ -7,6 +7,7 @@ import RNFS from "react-native-fs";
 import { getColors } from 'react-native-image-colors'
 import { TagStructure, AndroidArtworkColors } from '../interfaces/Interfaces';
 import { Play, Pause } from '../helpers/Helpers';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: number, date: number, id: number }) => {
 
@@ -118,34 +119,36 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
   }, [songInfo]);
 
   const operateTrack = async () => {
-    if(playing && playing.id == songInfo.id && !paused){
+    if (playing && playing.id == songInfo.id && !paused) {
       await Pause();
       setPaused(true);
       return;
     }
-     await Play(uri);
-     setPaused(false);
-     setPlaying({ ...songInfo, uri: uri, duration: duration });
-     setArtworkColors(colors);
-     setArtwork64(artwork)
+    await Play(uri);
+    setPaused(false);
+    setPlaying({ ...songInfo, uri: uri, duration: duration });
+    setArtworkColors(colors);
+    setArtwork64(artwork)
   }
 
   return (
-    <Pressable onPress={async()=> await operateTrack()}
+    <Pressable onPress={async () => await operateTrack()}
       style={[{ width: "100%", height: 75, alignItems: 'center', flexDirection: 'row', gap: 20, paddingHorizontal: 22 },
       (playing !== false && playing.id == songInfo.id) && { backgroundColor: colors?.darkVibrant }]}>
-      <Image source={artwork !== undefined ? { uri: `data:image/jpeg;base64,${artwork}` } : require('../assets/artworkPlaceholder.jpg')}
-        style={{ width: 60, height: 60, borderWidth: 2, borderRadius: 10 }} />
+      <View style={{elevation:4, width:60, height:60, borderRadius: 10}}>
+        <Image source={artwork !== undefined ? { uri: `data:image/jpeg;base64,${artwork}` } : require('../assets/artworkPlaceholder.jpg')}
+          style={{ width:'100%', height:'100%', borderRadius: 10 }} />
+      </View>
       <View style={{ flex: 1, flexDirection: 'row', height: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ gap: 4, flex: 1, paddingRight: 20 }}>
-          <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 500, fontSize: 15, maxHeight: 20 }}>{songInfo.title}</Text>
+          <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 700, fontSize: 15, maxHeight: 20 }}>{songInfo.title}</Text>
           <View style={{ flex: 1, maxHeight: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }} >{songInfo.artist ? songInfo.artist : "Unknown Artist"}</Text>
             <Text style={{ color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }}>{Math.floor(duration / 60) < 10 && 0}{Math.floor(duration / 60)}:{Math.floor(duration % 60)}</Text>
           </View>
         </View>
         <Pressable>
-          <Text style={{ color: theme.textColorPrimary, fontWeight: 800 }}>. . .</Text>
+        <Ionicons name="ellipsis-horizontal" size={24} color={theme.textColorPrimary} />
         </Pressable>
       </View>
     </Pressable>

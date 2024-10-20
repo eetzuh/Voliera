@@ -16,7 +16,7 @@ const DrawerNav = () => {
                 swipeEdgeWidth: 80,
                 drawerStyle: {
                     width: 250,
-                    backgroundColor: theme.bgColorPrimay
+                    backgroundColor: theme.colorLight, 
                 },
                 headerShown: false
             }}>
