@@ -4,12 +4,14 @@ import { useTracks, useTheme } from '../context/Context'
 import { TouchableOpacity } from 'react-native'
 import { GestureDetector, Gesture, Directions } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
+import { Play, Pause, Stop } from '../helpers/Helpers';
 
 const PlayingWindow = () => {
     const { artwork64, playing, setPlaying, paused, setPaused } = useTracks()
     const { theme } = useTheme()
 
-    const close = Gesture.Fling().direction(Directions.DOWN).onEnd(() => {
+    const close = Gesture.Fling().direction(Directions.DOWN).onEnd(async() => {
+        runOnJS(Stop)()
         runOnJS(setPlaying)(false)
     });
     const open = Gesture.Fling().direction(Directions.UP).onEnd(() => {
@@ -20,6 +22,18 @@ const PlayingWindow = () => {
     })
     const gesture = Gesture.Simultaneous(close, open, openWithTap)
 
+    const operateTrack = async () => {
+        if (playing && playing.uri !== null) {
+            if (paused) {
+                await Play(playing.uri);
+                setPaused(false);
+                return
+            }
+            await Pause();
+            setPaused(true);
+        }
+    }
+
     return (
         playing && (
             <GestureDetector gesture={gesture}>
@@ -28,7 +42,7 @@ const PlayingWindow = () => {
                         style={{ width: "100%", height: 58, borderTopLeftRadius: 16, borderTopRightRadius: 16, opacity: 0.5 }}></Image>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, paddingHorizontal: 20, marginVertical: 10 }}>
                         <Text numberOfLines={1} style={{ color: theme.textColorPrimary, fontWeight: 500, fontSize: 16.5, flex: 1 }}>{playing.artist && playing.artist + " - "}{playing.title}</Text>
-                        <TouchableOpacity onPress={() => setPaused(!paused)} style={{ backgroundColor: 'red', zIndex: 5, width: 50 }}>
+                        <TouchableOpacity onPress={async () => await operateTrack()} style={{ backgroundColor: 'red', zIndex: 5, width: 50 }}>
                             <Text style={{ color: theme.textColorPrimary }}>{paused ? "PLAY" : "PAUSE"}</Text>
                         </TouchableOpacity>
                     </View>
