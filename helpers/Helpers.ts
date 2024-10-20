@@ -37,3 +37,12 @@ export const Stop = async () => {
     await sound?.stopAsync();
     sound = null;
 }
+
+export const changePosition = async (position: number) => {
+    if (sound) {
+        const status = await sound.getStatusAsync();
+        if(status.isLoaded){
+            await sound.setStatusAsync({positionMillis: position})
+        }
+    }
+}
