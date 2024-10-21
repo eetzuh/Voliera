@@ -144,7 +144,7 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
           <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorPrimary, fontWeight: 700, fontSize: 15, maxHeight: 20 }}>{songInfo.title}</Text>
           <View style={{ flex: 1, maxHeight: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text numberOfLines={1} style={{ flex: 1, color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }} >{songInfo.artist ? songInfo.artist : "Unknown Artist"}</Text>
-            <Text style={{ color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }}>{Math.floor(duration / 60) < 10 && 0}{Math.floor(duration / 60)}:{Math.floor(duration % 60)}</Text>
+            <Text style={{ color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }}>{Math.floor(duration / 60) < 10 && 0}{Math.floor(duration / 60)}:{Math.floor(duration % 60)< 10 && 0}{Math.floor(duration % 60)}</Text>
           </View>
         </View>
         <Pressable>
