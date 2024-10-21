@@ -4,6 +4,7 @@ import { useTheme, useTracks } from "../context/Context";
 import React from "react";
 import { View } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import PlayingWindow from "./PlayingWindow";
 
 const Tab = createBottomTabNavigator();
 
@@ -11,25 +12,22 @@ export default function BottomTabs() {
     const { theme, artworkColors, setArtworkColors } = useTheme();
     const { playing } = useTracks();
     return (
+        <>
+        {playing && <PlayingWindow></PlayingWindow>}
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                tabBarBackground: () => (
-                    playing &&
-                    <View style={{ position: 'absolute', bottom: 0, height: 180, backgroundColor: theme.colorSecondary, width: '100%', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}></View>
-                ),
                 tabBarShowLabel: false,
                 headerShown: false,
                 tabBarStyle: {
                     position: "absolute",
                     paddingHorizontal:5,
-                    // height: playing == false ? 58 : 180,
                     height: 58,
                     backgroundColor: theme.colorSecondary,
-                    borderTopLeftRadius: 16, borderTopRightRadius: 16,
+                    borderTopLeftRadius: playing ? 0 : 16, 
+                    borderTopRightRadius: playing ? 0 : 16,
                     borderBlockColor: "transparent",
                     zIndex: 2,
                     elevation: 10,
-                    // paddingTop:playing == false ? 0 : 122,
                 },
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName : string= 'queue-music';
@@ -46,10 +44,11 @@ export default function BottomTabs() {
                 tabBarActiveTintColor: 'orange',
                 tabBarInactiveTintColor: theme.colorLight
             })}>
-            <Tab.Screen name="Explore" component={SongsScreen} />
+            {/* <Tab.Screen name="Explore" component={SongsScreen} /> */}
             <Tab.Screen name="Songs" component={SongsScreen} />
-            <Tab.Screen name="Playlists" component={SongsScreen} />
+            {/* <Tab.Screen name="Playlists" component={SongsScreen} /> */}
         </Tab.Navigator >
+        </>
 
     );
 }

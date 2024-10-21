@@ -11,8 +11,8 @@ import { createDB } from './db/database';
 import { AndroidArtworkColors, PlayingStructure } from './interfaces/Interfaces';
 import 'react-native-gesture-handler';
 import DrawerNav from './components/DrawerNav';
-import PlayingWindow from './components/PlayingWindow';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Audio } from "expo-av";
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -103,6 +103,7 @@ export default function App() {
     }
   }
 
+  Audio.setAudioModeAsync({staysActiveInBackground: true})
   useEffect(() => {
     const initialize = async () => {
       await hasSavedMetadata()
@@ -110,6 +111,7 @@ export default function App() {
     }
     initialize()
   }, [])
+
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bgColorPrimay }}>
@@ -120,7 +122,6 @@ export default function App() {
               <GestureHandlerRootView>
                 <StatusBar style="auto" />
                 <DrawerNav />
-                {playing && <PlayingWindow></PlayingWindow>}
               </GestureHandlerRootView>
             </ThemeContext.Provider>
           </TrackContext.Provider>

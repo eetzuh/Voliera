@@ -13,7 +13,7 @@ const DrawerNav = () => {
             id="DrawerNav"
             screenOptions={{
                 drawerType: 'front',
-                swipeEdgeWidth: 80,
+                swipeEdgeWidth: 0,
                 drawerStyle: {
                     width: 250,
                     backgroundColor: theme.colorLight, 
