@@ -1,5 +1,5 @@
 import { View, Text, Image, Dimensions, NativeSyntheticEvent, TextLayoutEventData } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTracks, useTheme } from '../context/Context'
 import { TouchableOpacity } from 'react-native'
 import { GestureDetector, Gesture, Directions } from 'react-native-gesture-handler';
@@ -10,6 +10,7 @@ import Animated, { useSharedValue } from 'react-native-reanimated';
 import Slider from '@react-native-community/slider';
 import { changePosition } from '../helpers/Helpers'
 import { Marquee } from '@animatereactnative/marquee';
+import { Audio } from 'expo-av';
 
 const PlayingWindow = () => {
     const { artwork64, playing, setPlaying, paused, setPaused, setPosition, position } = useTracks()
@@ -43,23 +44,38 @@ const PlayingWindow = () => {
         imageOpacity.value = withTiming(1)
         height.value = withTiming(screenHeight * 0.98);
         artworkHeight.value = withTiming(screenWidth);
-        artworkColors?.darkVibrant && (color.value = withTiming(artworkColors.darkVibrant, {
-            duration: 400,
-            easing: Easing.inOut(Easing.quad)
-        }));
+        if (theme.theme == "dark") {
+            artworkColors?.darkVibrant && (color.value = withTiming(artworkColors.darkVibrant, {
+                duration: 400,
+                easing: Easing.inOut(Easing.quad)
+            }));
+        }else{
+            artworkColors?.lightVibrant && (color.value = withTiming(artworkColors.lightVibrant, {
+                duration: 400,
+                easing: Easing.inOut(Easing.quad)
+            }));
+        }
         runOnJS(setMinimized)(false)
     });
     const openWithTap = Gesture.Tap().onEnd(() => {
-        runOnJS(setMinimized)(false)
-        height.value = withTiming(screenHeight * 0.9);
-        console.log("TAP");
+        if (minimized) {
+            bottom.value = withTiming(0)
+            imageOpacity.value = withTiming(1)
+            height.value = withTiming(screenHeight * 0.98);
+            artworkHeight.value = withTiming(screenWidth);
+            artworkColors?.darkVibrant && (color.value = withTiming(artworkColors.darkVibrant, {
+                duration: 400,
+                easing: Easing.inOut(Easing.quad)
+            }));
+            runOnJS(setMinimized)(false)
+        }
     })
     const gesture = Gesture.Simultaneous(close, open)
 
     const operateTrack = Gesture.Tap().onEnd(async () => {
         if (playing && playing.uri !== null) {
             if (paused) {
-                runOnJS(Play)(playing.uri)
+                runOnJS(Play)(playing.uri, setPosition)
                 runOnJS(setPaused)(false)
                 return
             }
@@ -76,22 +92,20 @@ const PlayingWindow = () => {
             setLinesOfTextMin(value > 1 ? 2 : 1)
         }
     }
-
-
     return (
         playing && (
             <GestureDetector gesture={gesture}>
-                <Animated.View style={{ position: 'absolute', bottom: bottom, height: height, backgroundColor: color, width: '100%', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+                <Animated.View style={{ position: 'absolute', bottom: bottom, height: height, backgroundColor: color, width: '100%', borderTopLeftRadius: 16, borderTopRightRadius: 16, zIndex: 5 }}>
                     <Animated.View style={{ width: '100%', height: artworkHeight, opacity: imageOpacity }}>
                         <Image source={artwork64 !== undefined ? { uri: `data:image/jpeg;base64,${artwork64}` } : require('../assets/artworkPlaceholder.jpg')}
                             style={{ width: "100%", height: "100%", borderTopLeftRadius: 16, borderTopRightRadius: 16 }}></Image>
                     </Animated.View>
                     <Animated.View style={[{ alignItems: 'center', gap: 20, paddingHorizontal: 20, height: !minimized ? 130 : "auto", marginTop: 10, flexDirection: !minimized ? "column" : "row" }, !minimized && { justifyContent: 'center', marginBottom: 20 }]}>
                         {minimized ?
-                            <View style={{flex:1}}>
+                            <View style={{ flex: 1 }}>
                                 <Text onTextLayout={(e) => getNumberOfLines(e, "min")} style={{ color: theme.textColorPrimary, fontWeight: 500, fontSize: 16.5, maxHeight: 30, minHeight: 25, position: 'absolute', opacity: 0 }}>{playing.artist && playing.artist + " - "}{playing.title}</Text>
                                 {linesOfTextMin > 1 ?
-                                    
+
                                     <Marquee spacing={30} speed={0.4}>
                                         <Text numberOfLines={1} style={{ color: theme.textColorPrimary, fontWeight: 500, fontSize: 16.5, maxHeight: 30, minHeight: 25 }}>{playing.artist && playing.artist + " - "}{playing.title}</Text>
                                     </Marquee>
@@ -104,10 +118,17 @@ const PlayingWindow = () => {
                                 <Text onTextLayout={(e) => getNumberOfLines(e, "max")} style={{ color: artworkColors?.lightVibrant, fontWeight: 700, fontSize: 24, maxHeight: 30, minHeight: 25, position: 'absolute', opacity: 0 }}>{playing.title}</Text>
                                 {linesOfText > 1 ?
                                     <Marquee spacing={30} speed={0.4}>
-                                        <Text style={{ color: artworkColors?.lightVibrant && artworkColors?.lightVibrant !== "#000000" ? artworkColors.lightVibrant : theme.textColorPrimary, fontWeight: 700, fontSize: 24, maxHeight: 30, minHeight: 25 }}>{playing.title}</Text>
+                                        <Text style={{ color: theme.theme == "dark" ? 
+                                            (artworkColors?.lightVibrant && artworkColors?.lightVibrant !== "#000000" ? 
+                                            artworkColors.lightVibrant : theme.textColorPrimary) : (artworkColors?.darkVibrant && artworkColors?.darkVibrant !== "#000000" ? 
+                                                artworkColors.darkVibrant : theme.textColorPrimary),
+                                             fontWeight: 700, fontSize: 24, maxHeight: 30, minHeight: 25 }}>{playing.title}</Text>
                                     </Marquee>
                                     :
-                                    <Text style={{ color: artworkColors?.lightVibrant && artworkColors?.lightVibrant !== "#000000" ? artworkColors.lightVibrant : theme.textColorPrimary, fontWeight: 700, fontSize: 24, maxHeight: 30, minHeight: 25 }}>{playing.title}</Text>
+                                    <Text style={{ color: theme.theme == "dark" ? 
+                                        (artworkColors?.lightVibrant && artworkColors?.lightVibrant !== "#000000" ? 
+                                        artworkColors.lightVibrant : theme.textColorPrimary) : (artworkColors?.darkVibrant && artworkColors?.darkVibrant !== "#000000" ? 
+                                            artworkColors.darkVibrant : theme.colorSecondary), fontWeight: 700, fontSize: 24, maxHeight: 30, minHeight: 25 }}>{playing.title}</Text>
                                 }
                                 <Text numberOfLines={1} style={{ color: theme.textColorSecondary, fontWeight: 500, fontSize: 17, maxHeight: 30, minHeight: 25 }}>{playing.artist ? playing.artist : "Unknown Artist"}</Text>
                             </View>
@@ -120,8 +141,8 @@ const PlayingWindow = () => {
                         </GestureDetector>
                     </Animated.View>
                     <View style={{ paddingHorizontal: 10, flex: 1 }}>
-                        <Slider maximumValue={Math.floor(playing.duration) * 1000} style={{ flex: 1, maxHeight: 30 }} minimumTrackTintColor={artwork64 ? artworkColors?.vibrant : 'orange'} maximumTrackTintColor={theme.colorLight} thumbTintColor={theme.textColorPrimary}
-                            onSlidingComplete={(res) => { changePosition(res); setPosition(res / 1000) }} />
+                        <Slider value={Math.floor(position * 1000)} maximumValue={Math.floor(playing.duration) * 1000} style={{ flex: 1, maxHeight: 30 }} minimumTrackTintColor={artwork64 ? artworkColors?.vibrant : 'orange'} maximumTrackTintColor={theme.colorLight} thumbTintColor={theme.textColorPrimary}
+                            onSlidingComplete={(res) => { setPosition(res / 1000); changePosition(res) }} onValueChange={(res) => { setPosition(res / 1000); changePosition(res) }} />
                         {!minimized &&
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 }}>
                                 <Text style={{ color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }}>{Math.floor(position / 60) < 10 && 0}{Math.floor(position / 60)}:{Math.floor(position % 60) < 10 && 0}{Math.floor(position % 60)}</Text>

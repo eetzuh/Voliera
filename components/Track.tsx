@@ -1,5 +1,5 @@
 import { View, Text, Image, Pressable } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { getTrackMetadata, insertTrackMedatada } from '../db/database';
 import { getAudioMetadata } from '@missingcore/audio-metadata';
 import { useTheme, useTracks } from '../context/Context';
@@ -21,7 +21,7 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
   })
 
   const { theme, artworkColors, setArtworkColors } = useTheme();
-  const { playing, setPlaying, setArtwork64, paused, setPaused } = useTracks();
+  const { playing, setPlaying, setArtwork64, paused, setPaused, setPosition } = useTracks();
   const [artwork, setArtwork] = useState<string | undefined>();
   const [colors, setColors] = useState<AndroidArtworkColors | null>(artworkColors);
 
@@ -124,7 +124,7 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
       setPaused(true);
       return;
     }
-    await Play(uri);
+    await Play(uri, setPosition);
     setPaused(false);
     setPlaying({ ...songInfo, uri: uri, duration: duration });
     setArtworkColors(colors);
@@ -134,7 +134,7 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
   return (
     <Pressable onPress={async () => await operateTrack()}
       style={[{ width: "100%", height: 75, alignItems: 'center', flexDirection: 'row', gap: 20, paddingHorizontal: 22 },
-      (playing !== false && playing.id == songInfo.id) && { backgroundColor: colors?.darkVibrant }]}>
+      (playing !== false && playing.id == songInfo.id) && { backgroundColor:theme.theme == "dark" ? colors?.darkVibrant : colors?.lightVibrant}]}>
       <View style={{elevation:4, width:60, height:60, borderRadius: 10}}>
         <Image source={artwork !== undefined ? { uri: `data:image/jpeg;base64,${artwork}` } : require('../assets/artworkPlaceholder.jpg')}
           style={{ width:'100%', height:'100%', borderRadius: 10 }} />

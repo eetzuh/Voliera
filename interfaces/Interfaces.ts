@@ -41,6 +41,7 @@ export interface TracksContextValue {
 }
 
 export interface ThemeColors {
+  theme: string,
   bgColorPrimay: string,
   colorSecondary: string,
   colorLight: string,

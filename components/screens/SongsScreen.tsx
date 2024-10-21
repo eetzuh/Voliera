@@ -25,7 +25,7 @@ const SongsScreen = () => {
                 );
             }, [tracks])}>
             </FlatList> */}
-            <FlashList keyExtractor={(item) => item.id.toString()} data={tracks} estimatedItemSize={75} renderItem={useCallback(({ item }: { item: Asset }) => {
+            <FlashList contentContainerStyle={playing ? {paddingBottom:200} : {paddingBottom:80}} keyExtractor={(item) => item.id.toString()} data={tracks} estimatedItemSize={75} renderItem={useCallback(({ item }: { item: Asset }) => {
                 return (
                     <Track key={item.id} uri={item.uri} duration={item.duration} date={item.modificationTime} id={Number(item.id)} />
                 );
