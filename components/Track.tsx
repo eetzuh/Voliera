@@ -5,19 +5,22 @@ import { getAudioMetadata } from '@missingcore/audio-metadata';
 import { useTheme, useTracks } from '../context/Context';
 import RNFS from "react-native-fs";
 import { getColors } from 'react-native-image-colors'
-import { TagStructure, AndroidArtworkColors } from '../interfaces/Interfaces';
+import { TagStructure, AndroidArtworkColors, PlayingStructure } from '../interfaces/Interfaces';
 import { Play, Pause } from '../helpers/Helpers';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: number, date: number, id: number }) => {
 
-  const [songInfo, setSongInfo] = useState<TagStructure>({
+  const [songInfo, setSongInfo] = useState<PlayingStructure>({
     id: id,
     artist: undefined,
     album: undefined,
     albumTrack: undefined,
     title: uri.split("/")[uri.split("/").length - 1],
     year: undefined,
+    uri:uri,
+    duration:duration,
+    date:date
   })
 
   const { theme, artworkColors, setArtworkColors } = useTheme();
@@ -53,7 +56,9 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
     const wantedTags = ['album', 'artist', 'name', 'track', 'year', 'artwork'] as const;
     try {
       const data = await getAudioMetadata(uri, wantedTags);
-      if (data) {
+      if (data) {        
+        console.log(uri);
+        
         // console.log(data.metadata.name);
         setSongInfo({
           ...songInfo,
@@ -62,6 +67,9 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
           albumTrack: data.metadata.track,
           title: data.metadata.name ? data.metadata.name : uri.split("/")[uri.split("/").length - 1],
           year: data.metadata.year,
+          uri:uri,
+          duration:duration,
+          date:date
         })
         if (data.metadata.artwork) {
           getArtwork(uri, data.metadata.artwork)
@@ -82,11 +90,11 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
     }
   }
 
-  const [trackExists, setTrackExists] = useState<boolean>(false);
+  const [trackExists, setTrackExists] = useState<boolean>(true);
 
   useEffect(() => {
     async function checkTrackMetadata(trackID: number) {
-      const metadata: TagStructure | undefined = await getTrackMetadata(trackID);
+      const metadata: PlayingStructure | undefined = await getTrackMetadata(trackID);
       if (metadata !== undefined) {
         setTrackExists(true)
         setSongInfo({
@@ -96,16 +104,19 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
           albumTrack: metadata.albumTrack,
           title: metadata.title,
           year: metadata.year,
+          uri:uri,
+          duration:duration,
+          date:date
         })
         getArtwork(uri, false)
         // console.log(JSON.stringify(metadata) + "*************DB");
         return
       } else {
-        // console.log("tusam" + uri);
+        setTrackExists(false)
         await getAndSaveSongInfo(uri)
+        // console.log("tusam" + uri);
       }
     }
-
     checkTrackMetadata(id)
   }, [])
 
@@ -113,7 +124,7 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
     async function insert() {
       await insertTrackMedatada(songInfo);
     }
-    if (songInfo.artist && songInfo.title && !trackExists) {
+    if (!trackExists) {
       insert();
     }
   }, [songInfo]);

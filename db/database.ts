@@ -1,5 +1,5 @@
 import * as SQLite from "expo-sqlite";
-import { TagStructure } from "../interfaces/Interfaces";
+import { PlayingStructure, TagStructure } from "../interfaces/Interfaces";
 
 interface AlbumOrArtist {
   id: number;
@@ -29,6 +29,9 @@ export const createDB = async () => {
             title TEXT,
             year INTEGER,
             track TEXT,
+            uri TEXT,
+            duration NUMBER,
+            date NUMBER,
             FOREIGN KEY (album_id) REFERENCES albums (id),
             FOREIGN KEY (artist_id) REFERENCES artists (id)
             );
@@ -45,7 +48,7 @@ export const createDB = async () => {
   }
 };
 
-export const getTrackMetadata = async (songID: number): Promise<TagStructure | undefined> => {
+export const getTrackMetadata = async (songID: number): Promise<PlayingStructure | undefined> => {
   try {
     const query = `
       SELECT 
@@ -53,6 +56,9 @@ export const getTrackMetadata = async (songID: number): Promise<TagStructure | u
         t.title, 
         t.track, 
         t.year, 
+        t.uri,
+        t.duration,
+        t.date,
         a.name as artist, 
         al.name as album 
       FROM tracks t
@@ -61,36 +67,39 @@ export const getTrackMetadata = async (songID: number): Promise<TagStructure | u
       WHERE t.id = ?;
     `;
 
-    const metadata = await db.getAllAsync(query, [songID]) as TagStructure[];
+    const metadata = await db.getAllAsync(query, [songID]) as PlayingStructure[];
 
     if (metadata.length > 0) {
       const trackData = metadata[0];
-      const res: TagStructure = {
+      const res: PlayingStructure = {
         id: trackData.id,
         artist: trackData.artist || undefined,
         album: trackData.album || undefined,
         albumTrack: trackData.albumTrack,
         title: trackData.title,
         year: trackData.year,
+        uri:trackData.uri,
+        duration:trackData.duration,
+        date:trackData.date
       };
 
       return res;
     }
-    return undefined; 
+    return undefined;
   } catch (error) {
     console.error('Error fetching track metadata:', error);
     return undefined;
   }
 };
 
-export const insertTrackMedatada = async (metadata: TagStructure) => {
+export const insertTrackMedatada = async (metadata: PlayingStructure) => {
   try {
     let albumID = null;
     let artistID = null;
 
     if (metadata.album) {
       await db.runAsync(`INSERT OR IGNORE INTO albums (name) VALUES (?)`, [metadata.album]);
-      const album : AlbumOrArtist[] = await db.getAllAsync(`SELECT id FROM albums WHERE name = ?`, [metadata.album]);
+      const album: AlbumOrArtist[] = await db.getAllAsync(`SELECT id FROM albums WHERE name = ?`, [metadata.album]);
       albumID = album[0].id;
     }
     if (metadata.artist) {
@@ -99,20 +108,41 @@ export const insertTrackMedatada = async (metadata: TagStructure) => {
       artistID = artist[0].id;
     }
     await db.runAsync(
-      `INSERT INTO tracks (id, album_id, artist_id, title, year, track) VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tracks (id, album_id, artist_id, title, year, track, uri, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         metadata.id,
         albumID,
         artistID,
         metadata.title || null,
         metadata.year || null,
-        metadata.albumTrack || null
+        metadata.albumTrack || null,
+        metadata.uri,
+        metadata.duration,
+        metadata.date
       ]
     );
   } catch (error) {
     console.log('Error inserting track metadata:', error);
   }
 };
+
+export const getAllTracks = async () => {
+  const query = `SELECT 
+    tracks.id,
+    tracks.title,
+    tracks.year,
+    tracks.track,
+    tracks.uri,
+    tracks.duration,
+    tracks.date,
+    artists.name AS artist_name,
+    albums.name AS album_name
+    FROM tracks
+    LEFT JOIN artists ON tracks.artist_id = artists.id
+    LEFT JOIN albums ON tracks.album_id = albums.id;`
+  const allTracks = await db.getAllAsync(query) as PlayingStructure[]
+  return allTracks;
+}
 
 
 // export const getTrackMetadata = async (songID: number) => {

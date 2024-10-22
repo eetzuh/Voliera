@@ -13,6 +13,7 @@ export interface TagStructure {
 export interface PlayingStructure extends TagStructure{
   uri: string | null;
   duration: number;
+  date:number
 }
 
 export interface AndroidArtworkColors {

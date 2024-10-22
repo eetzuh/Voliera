@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import * as MediaLibrary from "expo-media-library"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createDB } from './db/database';
+import { createDB, getAllTracks } from './db/database';
 import { AndroidArtworkColors, PlayingStructure } from './interfaces/Interfaces';
 import 'react-native-gesture-handler';
 import DrawerNav from './components/DrawerNav';
@@ -24,6 +24,7 @@ export default function App() {
   const theme = colorScheme === "dark" ? dark : light;
 
   const [tracks, setTracks] = useState<MediaLibrary.Asset[] | undefined>(undefined);
+  const [savedTracks, setSavedTracks] = useState<PlayingStructure[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState<PlayingStructure | false>(false);
   const [paused, setPaused] = useState<boolean>(false);
@@ -65,7 +66,10 @@ export default function App() {
 
     setTracks(filteredAssets.sort((a, b) => b.modificationTime - a.modificationTime))
     setLoading(false)
-
+    if(savedMetadata){
+      const savedTracks = await getAllTracks();
+      console.log(savedTracks[0]);
+    }
     return filteredAssets
   }
 
@@ -102,7 +106,9 @@ export default function App() {
         setSavedMetadata(true)
         return
       }
+      setSavedMetadata(false)
       await createDB();
+      await AsyncStorage.setItem("metadata_saved", "true")
     } catch (error) {
       console.log(error);
     }
