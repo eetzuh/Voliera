@@ -13,8 +13,13 @@ import 'react-native-gesture-handler';
 import DrawerNav from './components/DrawerNav';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Audio } from "expo-av";
+import TrackPlayer from 'react-native-track-player';
 
 export default function App() {
+
+  // AppRegistry.registerComponent(...);
+  // TrackPlayer.registerPlaybackService(() => require('./service'));
+
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? dark : light;
 
@@ -103,7 +108,7 @@ export default function App() {
     }
   }
 
-  Audio.setAudioModeAsync({staysActiveInBackground: true})
+  Audio.setAudioModeAsync({ staysActiveInBackground: true })
   useEffect(() => {
     const initialize = async () => {
       await hasSavedMetadata()
