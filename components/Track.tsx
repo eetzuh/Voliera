@@ -153,6 +153,12 @@ const Track = React.memo(({ uri, duration, date, id }: { uri: string, duration: 
       </View>
     </Pressable>
   )
+}, (prevProps, nextProps) => {
+  // Only re-render if the relevant props change
+  return prevProps.uri === nextProps.uri &&
+         prevProps.duration === nextProps.duration &&
+         prevProps.date === nextProps.date &&
+         prevProps.id === nextProps.id;
 });
 
 export default Track
