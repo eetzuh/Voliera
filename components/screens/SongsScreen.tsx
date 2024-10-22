@@ -61,7 +61,7 @@ const SongsScreen = () => {
     return (
         <View style={[styles.container, { backgroundColor: theme.bgColorPrimay }]}>
             <Header offset={headerOffset} />
-            <Animated.FlatList ListHeaderComponent={HeaderBackground} onScroll={scrollHandler} contentContainerStyle={{ paddingBottom: 80, paddingTop: 8 }} keyExtractor={(item) => item.id} initialNumToRender={10} maxToRenderPerBatch={16} windowSize={13} data={tracks} renderItem={useCallback(({ item }: { item: Asset }) => {
+            <Animated.FlatList ListHeaderComponent={HeaderBackground} onScroll={scrollHandler} contentContainerStyle={[{ paddingBottom: 80, paddingTop: 8 }, playing ? {paddingBottom:200} : {paddingBottom:80}]} keyExtractor={(item) => item.id} initialNumToRender={10} maxToRenderPerBatch={16} windowSize={13} data={tracks} renderItem={useCallback(({ item }: { item: Asset }) => {
                 return (
                     <Track uri={item.uri} duration={item.duration} date={item.modificationTime} id={Number(item.id)} />
                 );
