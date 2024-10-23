@@ -38,7 +38,7 @@ export default function BottomTabs() {
                     }
 
                     return (<View style={{width:65, backgroundColor:color, justifyContent:'center',alignItems:'center', height:40, borderRadius:16}}>
-                        <MaterialIcons name={iconName as keyof typeof MaterialIcons.glyphMap} size={24} color={theme.textColorPrimary} />
+                        <MaterialIcons name={iconName as keyof typeof MaterialIcons.glyphMap} size={24} color={theme.theme == "dark" ? theme.textColorPrimary : theme.colorLight} />
                     </View>)
                 },
                 tabBarActiveTintColor: 'orange',

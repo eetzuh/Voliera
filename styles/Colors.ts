@@ -9,9 +9,9 @@ export const dark={
 
 export const light={
     theme:'light',
-    bgColorPrimay:"#D5CADA",
-    colorSecondary:"#A69AC7",
-    colorLight:"#e4e1e6",
-    textColorPrimary:"black",
+    bgColorPrimay:"#dae3db",
+    colorSecondary:"#7d8a86",
+    colorLight:"#f4f2f5",
+    textColorPrimary:"#3b383b",
     textColorSecondary:"#00000060"
 }

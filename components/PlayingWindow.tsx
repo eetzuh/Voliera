@@ -142,7 +142,7 @@ const PlayingWindow = () => {
                     </Animated.View>
                     <View style={{ paddingHorizontal: 10, flex: 1 }}>
                         <Slider value={Math.floor(position * 1000)} maximumValue={Math.floor(playing.duration) * 1000} style={{ flex: 1, maxHeight: 30 }} minimumTrackTintColor={artwork64 ? artworkColors?.vibrant : 'orange'} maximumTrackTintColor={theme.colorLight} thumbTintColor={theme.textColorPrimary}
-                            onSlidingComplete={(res) => { setPosition(res / 1000); changePosition(res) }} onValueChange={(res) => { setPosition(res / 1000); changePosition(res) }} />
+                            onSlidingComplete={(res) => { setPosition(res / 1000); changePosition(res) }} onValueChange={(res) => { setPosition(res / 1000); }} />
                         {!minimized &&
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 }}>
                                 <Text style={{ color: theme.textColorSecondary, fontWeight: 400, fontSize: 14 }}>{Math.floor(position / 60) < 10 && 0}{Math.floor(position / 60)}:{Math.floor(position % 60) < 10 && 0}{Math.floor(position % 60)}</Text>
